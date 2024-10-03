@@ -1,0 +1,11 @@
+**/.DS_Store
+
+.cache/
+.docker/
+.local/
+.ruff_cache/
+venv/
+
+.env
+Dockerfile
+Makefile
