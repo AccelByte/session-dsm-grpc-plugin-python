@@ -14,11 +14,17 @@ RUN protoc  \
     session-dsm.proto
 
 # Extend App
-FROM python:3.9-slim-bullseye
-ARG TARGETOS
-ARG TARGETARCH
-ENV PYTHONDONTWRITEBYTECODE=1
-ENV PYTHONUNBUFFERED=1
+FROM ubuntu:22.04
+
+RUN apt update && \
+    apt install -y python3-pip python-is-python3 && \
+    python -m pip install --no-cache-dir --upgrade pip && \
+    apt upgrade -y && \
+    apt dist-upgrade -y && \
+    apt clean && \
+    rm -rf /var/lib/apt/lists/*
+
+# Install pip requirements
 WORKDIR /app
 COPY requirements.txt requirements.txt
 RUN python -m pip install -r requirements.txt
@@ -30,4 +36,4 @@ EXPOSE 6565
 # Prometheus /metrics web server port
 EXPOSE 8080
 
-ENTRYPOINT python -m app
+ENTRYPOINT ["python", "-m", "app"]
