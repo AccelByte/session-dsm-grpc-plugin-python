@@ -67,6 +67,7 @@ def generate_user(
                 "emailAddress": email_address,
                 "username": username,
                 "password": password,
+                "uniqueDisplayName": username,
                 # optional
                 "dateOfBirth": date_of_birth,
             }
@@ -80,7 +81,7 @@ def generate_user(
     if not (user_id := getattr(result, "user_id", None)):
         return None, "userId not found"
 
-    return (username, password, user_id), None
+    return (email_address, password, user_id), None
 
 
 def create_user_sdk(
