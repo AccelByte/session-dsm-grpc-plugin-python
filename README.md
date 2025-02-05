@@ -107,7 +107,7 @@ your own logic for the custom functions.
 
    h. [ngrok](https://ngrok.com/)
 
-      - Follow installation instruction for Linux [here](https://ngrok.com/download)
+      - Follow installation instruction for Linux [here](https://ngrok.com/downloads)
 
    > :exclamation: In macOS, you may use [Homebrew](https://brew.sh/) to easily install some of the tools above.
 
