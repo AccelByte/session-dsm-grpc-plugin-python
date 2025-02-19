@@ -69,15 +69,21 @@ your own logic for the custom functions.
       ...
       ```
 
-   d. Python 3.9
+   d. Python 3.10
 
-      - To install from Ubuntu repository, run: `sudo apt update && sudo apt install python3 python3-venv`
+      - On Linux Ubuntu:
 
-      ```
-      python3 --version
+         To install from the Ubuntu repository, run `sudo apt update && sudo apt install python3 python3-venv`.
 
-      Python 3.9.x
-      ```
+      - On Windows or macOS:
+
+         Use the available installer [here](https://www.python.org/downloads/).
+
+         ```
+         python3 --version
+
+         Python 3.10.12
+         ```
 
    e. Curl
 
