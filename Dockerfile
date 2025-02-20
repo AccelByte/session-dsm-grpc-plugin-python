@@ -27,7 +27,7 @@ RUN apt update && \
 # Install pip requirements
 WORKDIR /app
 COPY requirements.txt requirements.txt
-RUN python -m pip install -r requirements.txt
+RUN python -m pip install --no-cache-dir --force-reinstall --requirement requirements.txt
 COPY src .
 COPY --from=protoc /build/src/session_dsm* .
 
