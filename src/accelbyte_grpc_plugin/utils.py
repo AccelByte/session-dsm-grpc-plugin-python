@@ -1,11 +1,15 @@
-# Copyright (c) 2025 AccelByte Inc. All Rights Reserved.
+# Copyright (c) 2023 AccelByte Inc. All Rights Reserved.
 # This is licensed software from AccelByte Inc, for limitations
 # and restrictions contact your company contract manager.
 
+from environs import Env
 from logging import Logger
 from typing import Optional
+from typing import Any, Dict, Optional, Set
 
-from environs import Env
+from grpc import HandlerCallDetails
+
+from opentelemetry.propagate import get_global_textmap
 
 from accelbyte_py_sdk import AccelByteSDK
 from accelbyte_py_sdk.core import HttpxHttpClient, RequestsHttpClient
@@ -23,6 +27,21 @@ def create_env(**kwargs) -> Env:
         override=kwargs.get("env_override", False),
     )
     return env
+
+
+def get_headers_from_metadata(handler_call_details: HandlerCallDetails) -> Dict[str, Any]:
+    headers = {}
+    invocation_metadata = getattr(handler_call_details, "invocation_metadata", [])
+    for metadata in invocation_metadata:
+        key = getattr(metadata, "key", None)
+        value = getattr(metadata, "value", None)
+        if key is not None and value is not None:
+            headers[key] = value
+    return headers
+
+
+def get_propagator_header_keys() -> Set[str]:
+    return get_global_textmap().fields
 
 
 def instrument_sdk_http_client(sdk: AccelByteSDK, logger: Optional[Logger] = None) -> None:
@@ -53,5 +72,7 @@ def instrument_sdk_http_client(sdk: AccelByteSDK, logger: Optional[Logger] = Non
 
 __all__ = [
     "create_env",
+    "get_headers_from_metadata",
+    "get_propagator_header_keys",
     "instrument_sdk_http_client",
 ]
