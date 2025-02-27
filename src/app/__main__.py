@@ -6,7 +6,7 @@ import asyncio
 import logging
 
 from logging import Logger
-from typing import List, Optional
+from typing import List
 
 from accelbyte_py_sdk.core import (
     AccelByteSDK,
@@ -24,20 +24,19 @@ from accelbyte_grpc_plugin.app import (
     AppOptionGRPCInterceptor,
     AppOptionGRPCService,
 )
+from accelbyte_grpc_plugin.utils import instrument_sdk_http_client
 
 from session_dsm_pb2_grpc import add_SessionDsmServicer_to_server
 
-from app.services.session_dsm_demo import AsyncSessionDsmDemoService
-from app.services.session_dsm_gamelift import AsyncSessionDsmGameLiftService
-from app.services.session_dsm_gcp import AsyncSessionDsmGcpService
-from app.utils import create_env
+from .services.session_dsm_demo import AsyncSessionDsmDemoService
+from .services.session_dsm_gamelift import AsyncSessionDsmGameLiftService
+from .services.session_dsm_gcp import AsyncSessionDsmGcpService
+from .utils import create_env
 
 DEFAULT_APP_PORT: int = 6565
 
 DEFAULT_AB_BASE_URL: str = "https://test.accelbyte.io"
 DEFAULT_AB_NAMESPACE: str = "accelbyte"
-DEFAULT_AB_CLIENT_ID: Optional[str] = None
-DEFAULT_AB_CLIENT_SECRET: Optional[str] = None
 
 DEFAULT_ENABLE_HEALTH_CHECK: bool = True
 DEFAULT_ENABLE_PROMETHEUS: bool = True
@@ -54,10 +53,15 @@ async def main(**kwargs) -> None:
 
     port: int = env.int("PORT", DEFAULT_APP_PORT)
 
+    logger = logging.getLogger("app")
+    logger.setLevel(logging.INFO)
+    logger.addHandler(logging.StreamHandler())
+
     config = DictConfigRepository(dict(env.dump()))
     token = InMemoryTokenRepository()
     http = HttpxHttpClient()
     http.client.follow_redirects = True
+
     sdk = AccelByteSDK()
     sdk.initialize(
         options={
@@ -66,14 +70,15 @@ async def main(**kwargs) -> None:
             "http": http,
         }
     )
+
+    instrument_sdk_http_client(sdk=sdk, logger=logger)
+
     _, error = await auth_service.login_client_async(sdk=sdk)
     if error:
         raise Exception(str(error))
+
     sdk.timer = auth_service.LoginClientTimer(2880, repeats=-1, autostart=True, sdk=sdk)
 
-    logger = logging.getLogger("app")
-    logger.setLevel(logging.INFO)
-    logger.addHandler(logging.StreamHandler())
     options = create_options(sdk=sdk, env=env, logger=logger)
 
     ds_provider = env("DS_PROVIDER", "DEMO")
