@@ -1,12 +1,13 @@
-# Copyright (c) 2024 AccelByte Inc. All Rights Reserved.
+# Copyright (c) 2025 AccelByte Inc. All Rights Reserved.
 # This is licensed software from AccelByte Inc, for limitations
 # and restrictions contact your company contract manager.
 
 import asyncio
 import logging
-
 from logging import Logger
-from typing import List
+from typing import List, Optional
+
+from environs import Env
 
 from accelbyte_py_sdk.core import (
     AccelByteSDK,
@@ -15,8 +16,6 @@ from accelbyte_py_sdk.core import (
     HttpxHttpClient,
 )
 from accelbyte_py_sdk.services import auth as auth_service
-
-from environs import Env
 
 from accelbyte_grpc_plugin.app import (
     App,
@@ -27,7 +26,6 @@ from accelbyte_grpc_plugin.app import (
 from accelbyte_grpc_plugin.utils import instrument_sdk_http_client
 
 from session_dsm_pb2_grpc import add_SessionDsmServicer_to_server
-
 from .services.session_dsm_demo import AsyncSessionDsmDemoService
 from .services.session_dsm_gamelift import AsyncSessionDsmGameLiftService
 from .services.session_dsm_gcp import AsyncSessionDsmGcpService
@@ -44,6 +42,9 @@ DEFAULT_ENABLE_REFLECTION: bool = True
 DEFAULT_ENABLE_ZIPKIN: bool = True
 
 DEFAULT_PLUGIN_GRPC_SERVER_AUTH_ENABLED: bool = True
+DEFAULT_PLUGIN_GRPC_SERVER_AUTH_RESOURCE: Optional[str] = None
+DEFAULT_PLUGIN_GRPC_SERVER_AUTH_ACTION: Optional[int] = None
+
 DEFAULT_PLUGIN_GRPC_SERVER_LOGGING_ENABLED: bool = False
 DEFAULT_PLUGIN_GRPC_SERVER_METRICS_ENABLED: bool = True
 
@@ -108,6 +109,7 @@ async def main(**kwargs) -> None:
         service = AsyncSessionDsmDemoService(logger=logger)
     else:
         raise NotImplementedError(ds_provider)
+
     logger.info(f"DS provider: {ds_provider}")
 
     options.append(
@@ -136,7 +138,9 @@ def create_options(sdk: AccelByteSDK, env: Env, logger: Logger) -> List[AppOptio
 
             options.append(AppOptionGRPCHealthCheck())
         if env.bool("PROMETHEUS", DEFAULT_ENABLE_PROMETHEUS):
-            from accelbyte_grpc_plugin.options.prometheus import AppOptionPrometheus
+            from accelbyte_grpc_plugin.options.prometheus import (
+                AppOptionPrometheus
+            )
 
             options.append(AppOptionPrometheus())
         if env.bool("REFLECTION", DEFAULT_ENABLE_REFLECTION):
@@ -146,25 +150,29 @@ def create_options(sdk: AccelByteSDK, env: Env, logger: Logger) -> List[AppOptio
 
             options.append(AppOptionGRPCReflection())
         if env.bool("ZIPKIN", DEFAULT_ENABLE_ZIPKIN):
-            from accelbyte_grpc_plugin.options.zipkin import AppOptionZipkin
+            from accelbyte_grpc_plugin.options.zipkin import (
+                AppOptionZipkin
+            )
 
             options.append(AppOptionZipkin())
 
     with env.prefixed("PLUGIN_GRPC_SERVER_"):
         with env.prefixed("AUTH_"):
             if env.bool("ENABLED", DEFAULT_PLUGIN_GRPC_SERVER_AUTH_ENABLED):
-                from accelbyte_py_sdk.token_validation.caching import (
-                    CachingTokenValidator,
-                )
-                from accelbyte_grpc_plugin.interceptors.authorization import (
-                    AuthorizationServerInterceptor,
-                )
+                from accelbyte_py_sdk.token_validation.caching import CachingTokenValidator
+                from accelbyte_grpc_plugin.interceptors.authorization import AuthorizationServerInterceptor
 
                 options.append(
                     AppOptionGRPCInterceptor(
                         interceptor=AuthorizationServerInterceptor(
-                            namespace=namespace,
                             token_validator=CachingTokenValidator(sdk=sdk),
+                            resource=env.str(
+                                "RESOURCE", DEFAULT_PLUGIN_GRPC_SERVER_AUTH_RESOURCE
+                            ),
+                            action=env.int(
+                                "ACTION", DEFAULT_PLUGIN_GRPC_SERVER_AUTH_ACTION
+                            ),
+                            namespace=namespace,
                         )
                     )
                 )
