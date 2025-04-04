@@ -251,10 +251,6 @@ To test the app, which runs locally with AGS, the `gRPC server` needs to be conn
 
    > :exclamation: You may also use other local tunnel service and different method to expose the gRPC server port (TCP) to the internet.
 
-   > :warning: **If you are running [grpc-plugin-dependencies](https://github.com/AccelByte/grpc-plugin-dependencies) stack alongside this app as mentioned in [Test Observability](#test-observability)**: Run the above 
-   command in `grpc-plugin-dependencies` directory instead of this app directory and change tunnel local port from 6565 to 10000.
-   This way, the `gRPC server` will be called via `Envoy` service within `grpc-plugin-dependencies` stack instead of directly.
-
 3. In admin portal go to -> Multiplayer > Matchmaking > Session Configuration. Click on the Add Session Template button. Select the Server configuration to be a DS - Custom. Then, select the Custom URL option and provide the tunnel forwarding URL from step 2.
 
 4. create gamesession or do matchmaking
