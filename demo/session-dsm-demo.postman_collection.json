@@ -1,10 +1,10 @@
 {
 	"info": {
-		"_postman_id": "3208977d-576a-4c63-a1e9-8615fe4c2816",
+		"_postman_id": "21903ece-153f-4397-b6d0-745d9345cc9a",
 		"name": "Session DSM Demo",
 		"description": "This `collection` requires an `environment` with the following variables.\n\n- `AB_BASE_URL`\n    \n- `AB_NAMESPACE`\n    \n- `AB_CLIENT_ID`\n    \n- `AB_CLIENT_SECRET`\n    \n- `EXTEND_APP_NAME`\n    \n- `GRPC_SERVER_URL` (for local deployment)\n    \n\nYou will need following permissions for the IAM Client.  \nFor AGS Private Cloud customers:\n\n- `ADMIN:NAMESPACE:{namespace}:SESSION:CONFIGURATION [CREATE,READ,UPDATE,DELETE]`\n    \n- `ADMIN:NAMESPACE:{namespace}:INFORMATION:USER:\\* [DELETE]`\n    \n\nFor AGS Shared Cloud customers:\n\n- Session -> Custom Configuration (Read, Create, Update, Delete)\n    \n- IAM -> Users (Delete)\n    \n\nMake sure you have deployed Extend Service Extension app. Get `EXTEND_APP_NAME` from extend app page in admin portal. For local deployment, use local url and store it in `GRPC_SERVER_URL` instead.\n\nPlease read [getting started with session dedicated server customization](https://docs.accelbyte.io/gaming-services/services/extend/override/getting-started-with-session-customization-server-dsm/) for more information.",
 		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
-		"_exporter_id": "19336018"
+		"_exporter_id": "16846723"
 	},
 	"item": [
 		{
@@ -224,39 +224,6 @@
 			"response": []
 		},
 		{
-			"name": "30-client-delete-configuration-template",
-			"request": {
-				"auth": {
-					"type": "bearer",
-					"bearer": [
-						{
-							"key": "token",
-							"value": "{{CLIENT_ACCESS_TOKEN}}",
-							"type": "string"
-						}
-					]
-				},
-				"method": "DELETE",
-				"header": [],
-				"url": {
-					"raw": "{{AB_BASE_URL}}/session/v1/admin/namespaces/{{AB_NAMESPACE}}/configurations/extend-override-demo",
-					"host": [
-						"{{AB_BASE_URL}}"
-					],
-					"path": [
-						"session",
-						"v1",
-						"admin",
-						"namespaces",
-						"{{AB_NAMESPACE}}",
-						"configurations",
-						"extend-override-demo"
-					]
-				}
-			},
-			"response": []
-		},
-		{
 			"name": "31-client-create-configuration-template",
 			"event": [
 				{
@@ -264,14 +231,21 @@
 					"script": {
 						"exec": [
 							"let extendAppName = pm.collectionVariables.get(\"EXTEND_APP_NAME\");",
+							"",
 							"if (!extendAppName || extendAppName == \"\")",
 							"    extendAppName = pm.environment.get(\"EXTEND_APP_NAME\");",
 							"",
 							"let grpcServerUrl = pm.collectionVariables.get(\"GRPC_SERVER_URL\");",
+							"",
 							"if (!grpcServerUrl || grpcServerUrl == \"\")",
 							"    grpcServerUrl = pm.environment.get(\"GRPC_SERVER_URL\");",
 							"",
-							"let body = JSON.parse(pm.request.body.raw);",
+							"const body = JSON.parse(pm.request.body.raw);",
+							"",
+							"const configurationTemplateName = \"extend-override-demo_\" + Math.floor(Date.now() / 1000)",
+							"pm.collectionVariables.set('CONFIGURATION_TEMPLATE_NAME', configurationTemplateName)",
+							"body.name = configurationTemplateName",
+							"",
 							"if (extendAppName && extendAppName != \"\")",
 							"    body.appName = extendAppName;",
 							"else if (grpcServerUrl && grpcServerUrl != \"\")",
@@ -360,6 +334,23 @@
 						"type": "text/javascript",
 						"packages": {}
 					}
+				},
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							"const configurationTemplateName = pm.collectionVariables.get('CONFIGURATION_TEMPLATE_NAME')\r",
+							"\r",
+							"const requestBody = {\r",
+							"    configurationName: configurationTemplateName\r",
+							"}\r",
+							"\r",
+							"pm.variables.set(\"requestBody\", JSON.stringify(requestBody));\r",
+							""
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
 				}
 			],
 			"request": {
@@ -377,7 +368,7 @@
 				"header": [],
 				"body": {
 					"mode": "raw",
-					"raw": "{\n    \"configurationName\": \"extend-override-demo\"\n}",
+					"raw": "{{requestBody}}",
 					"options": {
 						"raw": {
 							"language": "json"
@@ -498,6 +489,39 @@
 						"{{AB_NAMESPACE}}",
 						"gamesessions",
 						"{{GAME_SESSION_ID}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "90-client-delete-configuration-template",
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{CLIENT_ACCESS_TOKEN}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "DELETE",
+				"header": [],
+				"url": {
+					"raw": "{{AB_BASE_URL}}/session/v1/admin/namespaces/{{AB_NAMESPACE}}/configurations/{{CONFIGURATION_TEMPLATE_NAME}}",
+					"host": [
+						"{{AB_BASE_URL}}"
+					],
+					"path": [
+						"session",
+						"v1",
+						"admin",
+						"namespaces",
+						"{{AB_NAMESPACE}}",
+						"configurations",
+						"{{CONFIGURATION_TEMPLATE_NAME}}"
 					]
 				}
 			},
