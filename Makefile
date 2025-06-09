@@ -7,8 +7,6 @@ SHELL := /bin/bash
 IMAGE_NAME ?= $(shell basename "$$(pwd)")-app
 BUILDER := session-dsm-plugin-server-builder
 
-TEST_SAMPLE_CONTAINER_NAME := session-dsm-plugin-server-test
-
 .PHONY: proto build
 
 proto:
