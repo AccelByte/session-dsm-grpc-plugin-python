@@ -1,11 +1,11 @@
-# Copyright (c) 2024 AccelByte Inc. All Rights Reserved.
+# Copyright (c) 2025 AccelByte Inc. All Rights Reserved.
 # This is licensed software from AccelByte Inc, for limitations
 # and restrictions contact your company contract manager.
 
 SHELL := /bin/bash
 
 IMAGE_NAME ?= $(shell basename "$$(pwd)")-app
-BUILDER := session-dsm-plugin-server-builder
+BUILDER := extend-builder
 
 .PHONY: proto build
 
@@ -13,12 +13,9 @@ proto:
 	docker run --tty --rm --user $$(id -u):$$(id -g) \
 		--volume $$(pwd):/build \
 		--workdir /build \
+		--entrypoint /bin/bash \
 		rvolosatovs/protoc:4.1.0 \
-			--proto_path=proto/app \
-			--grpc-python_out=src \
-			--pyi_out=src \
-			--python_out=src \
-			session-dsm.proto
+			proto.sh
 
 build: proto
 
@@ -26,8 +23,7 @@ image:
 	docker build -t ${IMAGE_NAME} -f Dockerfile .
 
 imagex:
-	docker buildx inspect $(BUILDER) \
-			|| docker buildx create --name $(BUILDER) --use
+	docker buildx inspect $(BUILDER) || docker buildx create --name $(BUILDER) --use
 	docker buildx build -t ${IMAGE_NAME} --platform linux/amd64 .
 	docker buildx build -t ${IMAGE_NAME} --load .
 	docker buildx rm --keep-state $(BUILDER)
