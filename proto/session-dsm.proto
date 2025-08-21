@@ -1,4 +1,4 @@
-// Copyright (c) 2023-2024 AccelByte Inc. All Rights Reserved.
+// Copyright (c) 2023-2025 AccelByte Inc. All Rights Reserved.
 // This is licensed software from AccelByte Inc, for limitations
 // and restrictions contact your company contract manager.
 
@@ -15,6 +15,7 @@ package accelbyte.session.sessiondsm;
 service SessionDsm {
   rpc CreateGameSession(RequestCreateGameSession) returns (ResponseCreateGameSession);
   rpc TerminateGameSession(RequestTerminateGameSession) returns (ResponseTerminateGameSession);
+  rpc CreateGameSessionAsync(RequestCreateGameSession) returns (ResponseCreateGameSessionAsync);
 }
 
 message RequestTerminateGameSession {
@@ -39,6 +40,7 @@ message RequestCreateGameSession {
   int64 maximum_player = 6;
   string client_version = 7;
   string game_mode = 8;
+  string  secret = 9;
 }
 
 message ResponseCreateGameSession {
@@ -55,4 +57,9 @@ message ResponseCreateGameSession {
   string client_version = 11;
   string game_mode = 12;
   string created_region =13;
+}
+
+message ResponseCreateGameSessionAsync{
+  bool success = 1;
+  string message = 2;
 }

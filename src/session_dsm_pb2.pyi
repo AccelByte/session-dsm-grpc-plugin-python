@@ -6,13 +6,14 @@ from typing import ClassVar as _ClassVar, Iterable as _Iterable, Optional as _Op
 DESCRIPTOR: _descriptor.FileDescriptor
 
 class RequestCreateGameSession(_message.Message):
-    __slots__ = ["client_version", "deployment", "game_mode", "maximum_player", "namespace", "requested_region", "session_data", "session_id"]
+    __slots__ = ["client_version", "deployment", "game_mode", "maximum_player", "namespace", "requested_region", "secret", "session_data", "session_id"]
     CLIENT_VERSION_FIELD_NUMBER: _ClassVar[int]
     DEPLOYMENT_FIELD_NUMBER: _ClassVar[int]
     GAME_MODE_FIELD_NUMBER: _ClassVar[int]
     MAXIMUM_PLAYER_FIELD_NUMBER: _ClassVar[int]
     NAMESPACE_FIELD_NUMBER: _ClassVar[int]
     REQUESTED_REGION_FIELD_NUMBER: _ClassVar[int]
+    SECRET_FIELD_NUMBER: _ClassVar[int]
     SESSION_DATA_FIELD_NUMBER: _ClassVar[int]
     SESSION_ID_FIELD_NUMBER: _ClassVar[int]
     client_version: str
@@ -21,9 +22,10 @@ class RequestCreateGameSession(_message.Message):
     maximum_player: int
     namespace: str
     requested_region: _containers.RepeatedScalarFieldContainer[str]
+    secret: str
     session_data: str
     session_id: str
-    def __init__(self, session_id: _Optional[str] = ..., namespace: _Optional[str] = ..., deployment: _Optional[str] = ..., session_data: _Optional[str] = ..., requested_region: _Optional[_Iterable[str]] = ..., maximum_player: _Optional[int] = ..., client_version: _Optional[str] = ..., game_mode: _Optional[str] = ...) -> None: ...
+    def __init__(self, session_id: _Optional[str] = ..., namespace: _Optional[str] = ..., deployment: _Optional[str] = ..., session_data: _Optional[str] = ..., requested_region: _Optional[_Iterable[str]] = ..., maximum_player: _Optional[int] = ..., client_version: _Optional[str] = ..., game_mode: _Optional[str] = ..., secret: _Optional[str] = ...) -> None: ...
 
 class RequestTerminateGameSession(_message.Message):
     __slots__ = ["namespace", "session_id", "zone"]
@@ -64,6 +66,14 @@ class ResponseCreateGameSession(_message.Message):
     source: str
     status: str
     def __init__(self, session_id: _Optional[str] = ..., namespace: _Optional[str] = ..., session_data: _Optional[str] = ..., status: _Optional[str] = ..., ip: _Optional[str] = ..., port: _Optional[int] = ..., server_id: _Optional[str] = ..., source: _Optional[str] = ..., deployment: _Optional[str] = ..., region: _Optional[str] = ..., client_version: _Optional[str] = ..., game_mode: _Optional[str] = ..., created_region: _Optional[str] = ...) -> None: ...
+
+class ResponseCreateGameSessionAsync(_message.Message):
+    __slots__ = ["message", "success"]
+    MESSAGE_FIELD_NUMBER: _ClassVar[int]
+    SUCCESS_FIELD_NUMBER: _ClassVar[int]
+    message: str
+    success: bool
+    def __init__(self, success: bool = ..., message: _Optional[str] = ...) -> None: ...
 
 class ResponseTerminateGameSession(_message.Message):
     __slots__ = ["namespace", "reason", "session_id", "success"]

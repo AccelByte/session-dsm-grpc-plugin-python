@@ -24,6 +24,11 @@ class SessionDsmStub(object):
                 request_serializer=session__dsm__pb2.RequestTerminateGameSession.SerializeToString,
                 response_deserializer=session__dsm__pb2.ResponseTerminateGameSession.FromString,
                 )
+        self.CreateGameSessionAsync = channel.unary_unary(
+                '/accelbyte.session.sessiondsm.SessionDsm/CreateGameSessionAsync',
+                request_serializer=session__dsm__pb2.RequestCreateGameSession.SerializeToString,
+                response_deserializer=session__dsm__pb2.ResponseCreateGameSessionAsync.FromString,
+                )
 
 
 class SessionDsmServicer(object):
@@ -41,6 +46,12 @@ class SessionDsmServicer(object):
         context.set_details('Method not implemented!')
         raise NotImplementedError('Method not implemented!')
 
+    def CreateGameSessionAsync(self, request, context):
+        """Missing associated documentation comment in .proto file."""
+        context.set_code(grpc.StatusCode.UNIMPLEMENTED)
+        context.set_details('Method not implemented!')
+        raise NotImplementedError('Method not implemented!')
+
 
 def add_SessionDsmServicer_to_server(servicer, server):
     rpc_method_handlers = {
@@ -53,6 +64,11 @@ def add_SessionDsmServicer_to_server(servicer, server):
                     servicer.TerminateGameSession,
                     request_deserializer=session__dsm__pb2.RequestTerminateGameSession.FromString,
                     response_serializer=session__dsm__pb2.ResponseTerminateGameSession.SerializeToString,
+            ),
+            'CreateGameSessionAsync': grpc.unary_unary_rpc_method_handler(
+                    servicer.CreateGameSessionAsync,
+                    request_deserializer=session__dsm__pb2.RequestCreateGameSession.FromString,
+                    response_serializer=session__dsm__pb2.ResponseCreateGameSessionAsync.SerializeToString,
             ),
     }
     generic_handler = grpc.method_handlers_generic_handler(
@@ -95,5 +111,22 @@ class SessionDsm(object):
         return grpc.experimental.unary_unary(request, target, '/accelbyte.session.sessiondsm.SessionDsm/TerminateGameSession',
             session__dsm__pb2.RequestTerminateGameSession.SerializeToString,
             session__dsm__pb2.ResponseTerminateGameSession.FromString,
+            options, channel_credentials,
+            insecure, call_credentials, compression, wait_for_ready, timeout, metadata)
+
+    @staticmethod
+    def CreateGameSessionAsync(request,
+            target,
+            options=(),
+            channel_credentials=None,
+            call_credentials=None,
+            insecure=False,
+            compression=None,
+            wait_for_ready=None,
+            timeout=None,
+            metadata=None):
+        return grpc.experimental.unary_unary(request, target, '/accelbyte.session.sessiondsm.SessionDsm/CreateGameSessionAsync',
+            session__dsm__pb2.RequestCreateGameSession.SerializeToString,
+            session__dsm__pb2.ResponseCreateGameSessionAsync.FromString,
             options, channel_credentials,
             insecure, call_credentials, compression, wait_for_ready, timeout, metadata)

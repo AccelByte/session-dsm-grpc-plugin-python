@@ -1,7 +1,9 @@
 # Copyright (c) 2024 AccelByte Inc. All Rights Reserved.
 # This is licensed software from AccelByte Inc, for limitations
 # and restrictions contact your company contract manager.
+
 import json
+import threading
 
 from logging import Logger
 from typing import Any, Optional
@@ -9,11 +11,15 @@ from typing import Any, Optional
 from google.protobuf.json_format import MessageToDict
 from grpc import ServicerContext, StatusCode
 
+import accelbyte_py_sdk.api.session as session
+import accelbyte_py_sdk.api.session.models as session_models
+
 from session_dsm_pb2 import (
     DESCRIPTOR,
     RequestCreateGameSession,
     RequestTerminateGameSession,
     ResponseCreateGameSession,
+    ResponseCreateGameSessionAsync,
     ResponseTerminateGameSession,
 )
 from session_dsm_pb2_grpc import SessionDsmServicer
@@ -76,6 +82,62 @@ class AsyncSessionDsmDemoService(SessionDsmServicer):
         self.log_payload(f"{self.TerminateGameSession.__name__} response: %s", response)
 
         return response
+
+    async def CreateGameSessionAsync(
+        self, request: RequestCreateGameSession, context: ServicerContext
+    ) -> ResponseCreateGameSessionAsync:
+        self.log_payload(f"{self.CreateGameSessionAsync.__name__} request: %s", request)
+
+        response = ResponseCreateGameSessionAsync()
+        response.message = "success"
+        response.success = True
+
+        threading.Timer(
+            2,
+            self._call_admin_update_ds_information,
+            kwargs={
+                "ip": "192.161.1.1",
+                "port": 1223,
+                "server_id": "123455",
+                "description": "testing",
+                "region": request.requested_region[0],
+                "deployment": request.deployment,
+                "session_id": request.session_id,
+                "namespace": request.namespace,
+            }
+        ).start()
+
+        self.log_payload(f"{self.CreateGameSessionAsync.__name__} response: %s", response)
+
+        return response
+
+    def _call_admin_update_ds_information(self, **kwargs):
+        ip = kwargs.get("ip")
+        port = kwargs.get("port")
+        server_id = kwargs.get("server_id")
+        description = kwargs.get("description")
+        region = kwargs.get("region")
+        deployment = kwargs.get("deployment")
+        session_id = kwargs.get("session_id")
+        namespace = kwargs.get("namespace")
+
+        _, error = session.admin_update_ds_information(
+            body=session_models.ApimodelsUpdateGamesessionDSInformationRequest.create(
+                created_region=region,
+                deployment=deployment,
+                description=description,
+                ip=ip,
+                port=port,
+                region=region,
+                server_id=server_id,
+                source="DEMO",
+                status="AVAILABLE",
+            ),
+            session_id=session_id,
+            namespace=namespace,
+        )
+        if error and self.logger:
+            self.logger.warning(str(error))
 
     # noinspection PyShadowingBuiltins
     def log_payload(self, format: str, payload: Any) -> None:
