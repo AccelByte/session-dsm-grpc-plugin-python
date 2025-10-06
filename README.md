@@ -269,6 +269,25 @@ After completing testing, the next step is to deploy your app to `AccelByte Gami
    - `Namespace`
    - `App Name`
 
+   Under the **Environment Configuration** section, set the required secrets and/or variables.
+   - Secrets
+      - `AB_CLIENT_ID`
+      - `AB_CLIENT_SECRET`
+      - `AWS_ACCESS_KEY_ID`         (for GameLift only)
+      - `AWS_SECRET_ACCESS_KEY`     (for GameLift only)
+   - Variables
+      - `DS_PROVIDER`
+      - `AWS_REGION`                (for GameLift only)
+      - `GAMELIFT_REGION`           (for GameLift only)
+      - `GCP_SERVICE_ACCOUNT_FILE`  (for GCP only)
+      - `GCP_PROJECT_ID`            (for GCP only)
+      - `GCP_NETWORK`               (for GCP only)
+      - `GCP_MACHINE_TYPE`          (for GCP only)
+      - `GCP_REPOSITORY`            (for GCP only)
+      - `GCP_RETRY`                 (for GCP only)
+      - `GCP_WAIT_GET_IP`           (for GCP only)
+      - `GCP_IMAGE_OPEN_PORT`       (for GCP only)
+
 2. **Build and Push the Container Image**
 
    Use [extend-helper-cli](https://github.com/AccelByte/extend-helper-cli) to build and upload the container image.
