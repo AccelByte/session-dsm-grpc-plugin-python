@@ -59,13 +59,16 @@ class AsyncSessionDsmGameLiftService(SessionDsmServicer):
             )
 
             if isinstance(cgs_response, dict):
-                raise TypeError("Expected response to be a dict.")
+                await context.abort(StatusCode.INTERNAL, "Expected response to be a dict.")
+                return  # Never reached, but needed for type checking
 
             if "GameSession" not in cgs_response:
-                raise ValueError("Expected 'GameSession' to be in response.")
+                await context.abort(StatusCode.INTERNAL, "Expected 'GameSession' to be in response.")
+                return  # Never reached, but needed for type checking
 
             if isinstance(cgs_response["GameSession"], dict):
-                raise TypeError("Expected response['GameSession'] to be a dict.")
+                await context.abort(StatusCode.INTERNAL, "Expected response['GameSession'] to be a dict.")
+                return  # Never reached, but needed for type checking
 
             response.client_version = request.client_version
             response.game_mode = request.game_mode

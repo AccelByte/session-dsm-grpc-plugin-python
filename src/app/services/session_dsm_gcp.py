@@ -400,11 +400,14 @@ class AsyncSessionDsmGcpService(SessionDsmServicer):
                 )
 
                 if delete_success:
-                    raise Exception("Instance creation process failed.")
+                    await context.abort(StatusCode.INTERNAL, "Instance creation process failed.")
+                    return  # Never reached, but needed for type checking
                 else:
-                    raise Exception(
+                    await context.abort(
+                        StatusCode.INTERNAL,
                         "Instance creation process isn't finish and failed to delete it."
                     )
+                    return  # Never reached, but needed for type checking
 
         except Exception as exception:
             code: StatusCode = StatusCode.INTERNAL
