@@ -135,9 +135,9 @@ your own logic for the custom functions.
    
       - Sample URL for AGS Shared Cloud customers: https://spaceshooter.prod.gamingservices.accelbyte.io
       
-   b. [Create a Game Namespace](https://docs.accelbyte.io/gaming-services/services/access/reference/namespaces/manage-your-namespaces/) if you don't have one yet. Keep the `Namespace ID`.
+   b. [Create a Game Namespace](https://docs.accelbyte.io/gaming-services/modules/foundations/identity-access/namespaces/manage-your-namespaces/) if you don't have one yet. Keep the `Namespace ID`.
 
-   c. [Create an OAuth Client](https://docs.accelbyte.io/gaming-services/services/access/authorization/manage-access-control-for-applications/#create-an-iam-client) with confidential client type. Keep the `Client ID` and `Client Secret`.
+   c. [Create an OAuth Client](https://docs.accelbyte.io/gaming-services/modules/foundations/identity-access/authorization/manage-access-control-for-applications/#create-an-iam-client) with confidential client type. Keep the `Client ID` and `Client Secret`.
 
 ## Setup
 
@@ -263,7 +263,7 @@ After completing testing, the next step is to deploy your app to `AccelByte Gami
 
 1. **Create an Extend Override app**
 
-   If you do not already have one, create a new [Extend Override App](https://docs.accelbyte.io/gaming-services/services/extend/override/session-dedicated-server/get-started-session-dedicated-server/#create-the-extend-app).
+   If you do not already have one, create a new [Extend Override App](https://docs.accelbyte.io/gaming-services/modules/foundations/extend/override/session-dedicated-server/get-started-session-dedicated-server/#create-the-extend-app).
 
    On the **App Detail** page, take note of the following values.
    - `Namespace`
@@ -307,4 +307,4 @@ After completing testing, the next step is to deploy your app to `AccelByte Gami
 
 ## Next Step
 
-Proceed by modifying this `Extend Override` app template to implement your own custom logic. For more details, see [here](https://docs.accelbyte.io/gaming-services/services/extend/override/session-dedicated-server/customize-session-dedicated-server/).
+Proceed by modifying this `Extend Override` app template to implement your own custom logic. For more details, see [here](https://docs.accelbyte.io/gaming-services/modules/foundations/extend/override/session-dedicated-server/customize-session-dedicated-server/).
