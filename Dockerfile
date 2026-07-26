@@ -5,7 +5,7 @@
 # ----------------------------------------
 # Stage 1: Protoc Code Generation
 # ----------------------------------------
-FROM --platform=$BUILDPLATFORM ubuntu:22.04 AS proto-builder
+FROM --platform=$BUILDPLATFORM ubuntu:26.04 AS proto-builder
 
 # Avoid warnings by switching to noninteractive
 ENV DEBIAN_FRONTEND=noninteractive
@@ -71,7 +71,7 @@ RUN chmod +x proto.sh && \
 # ----------------------------------------
 # Stage 2: gRPC Server Builder
 # ----------------------------------------
-FROM ubuntu:22.04 AS grpc-server-builder
+FROM ubuntu:26.04 AS grpc-server-builder
 
 # Keeps Python from generating .pyc files in the container.
 ENV PYTHONDONTWRITEBYTECODE=1

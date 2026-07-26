@@ -1,5 +1,5 @@
 # Development container for AccelByte Extend Service Extension
-FROM ubuntu:22.04
+FROM ubuntu:26.04
 
 # Avoid warnings by switching to noninteractive
 ENV DEBIAN_FRONTEND=noninteractive
