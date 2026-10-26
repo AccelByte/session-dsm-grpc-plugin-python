@@ -5,13 +5,13 @@
 # ----------------------------------------
 # Stage 1: Protoc Code Generation
 # ----------------------------------------
-FROM --platform=$BUILDPLATFORM ubuntu:22.04 AS proto-builder
+FROM --platform=$BUILDPLATFORM ubuntu:26.04 AS proto-builder
 
 # Avoid warnings by switching to noninteractive
 ENV DEBIAN_FRONTEND=noninteractive
 
 ARG PROTOC_VERSION=21.9
-ARG PYTHON_VERSION=3.10
+ARG PYTHON_VERSION=3.14
 
 # Configure apt and install packages
 RUN apt-get update \
@@ -53,7 +53,11 @@ RUN ln -sf /usr/bin/python${PYTHON_VERSION} /usr/local/bin/python3 \
     && ln -sf /usr/bin/pip3 /usr/local/bin/pip
 
 # Install Python tools required for proto generation.
-RUN pip install --no-cache-dir grpcio-tools==1.76.0 mypy-protobuf==4.0.0
+# Ubuntu 26.04 marks the system interpreter as externally managed (PEP 668).
+# proto.sh invokes `python -m grpc_tools.protoc`, so these must land in the
+# system site-packages rather than a venv. This is a disposable build stage.
+RUN pip install --no-cache-dir --break-system-packages \
+    grpcio-tools==1.76.0 mypy-protobuf==4.0.0
 
 # Set working directory.
 WORKDIR /build
@@ -71,7 +75,7 @@ RUN chmod +x proto.sh && \
 # ----------------------------------------
 # Stage 2: gRPC Server Builder
 # ----------------------------------------
-FROM ubuntu:22.04 AS grpc-server-builder
+FROM ubuntu:26.04 AS grpc-server-builder
 
 # Keeps Python from generating .pyc files in the container.
 ENV PYTHONDONTWRITEBYTECODE=1
@@ -115,7 +119,7 @@ RUN ln -sf /usr/bin/python3 /build/venv/bin/python3
 # ----------------------------------------
 # Stage 3: Runtime Container
 # ----------------------------------------
-FROM ubuntu/python:3.10-22.04_stable
+FROM ubuntu/python:3.14-26.04_stable
 
 # Keeps Python from generating .pyc files in the container.
 ENV PYTHONDONTWRITEBYTECODE=1
@@ -130,6 +134,9 @@ WORKDIR /app
 COPY --from=grpc-server-builder /usr/bin/bash /usr/bin/bash
 COPY --from=grpc-server-builder /usr/bin/kill /usr/bin/kill
 COPY --from=grpc-server-builder /usr/bin/sleep /usr/bin/sleep
+# The 26.04 chiseled python image no longer ships libstdc++ (22.04 did);
+# grpcio's _cython extension needs it at import time.
+COPY --from=grpc-server-builder /usr/lib/*-linux-gnu/libstdc++.so.6* /usr/lib/
 COPY --from=grpc-server-builder /etc/passwd /etc/passwd
 COPY --from=grpc-server-builder /etc/group /etc/group
 COPY --from=grpc-server-builder /build/ .

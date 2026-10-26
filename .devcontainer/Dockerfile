@@ -1,11 +1,11 @@
 # Development container for AccelByte Extend Service Extension
-FROM ubuntu:22.04
+FROM ubuntu:26.04
 
 # Avoid warnings by switching to noninteractive
 ENV DEBIAN_FRONTEND=noninteractive
 
 ARG PROTOC_VERSION=21.9
-ARG PYTHON_VERSION=3.10
+ARG PYTHON_VERSION=3.14
 ARG EXTEND_HELPER_CLI_VERSION=0.0.9
 
 # Configure apt and install packages
@@ -60,7 +60,10 @@ RUN groupadd --gid $USER_GID $USERNAME \
 USER $USERNAME
 
 # Install Python development tools
-RUN pip install --user grpcio-tools==1.76.0 mypy-protobuf==4.0.0 fillenv==1.0.0
+# PEP 668: Ubuntu 26.04's system interpreter is externally managed, and
+# --user alone does not exempt the install.
+RUN pip install --user --break-system-packages \
+    grpcio-tools==1.76.0 mypy-protobuf==4.0.0 fillenv==1.0.0
 
 # Switch back to dialog for any ad-hoc use of apt-get
 ENV DEBIAN_FRONTEND=dialog
