@@ -46,14 +46,26 @@ RUN ln -sf /usr/bin/python${PYTHON_VERSION} /usr/local/bin/python3 \
     && ln -sf /usr/bin/python${PYTHON_VERSION} /usr/local/bin/python \
     && ln -sf /usr/bin/pip3 /usr/local/bin/pip
 
-# Create a non-root user
+# Create a non-root user. Ubuntu 26.04 already ships uid/gid 1000 as
+# "ubuntu", so reuse that account instead of failing on groupadd.
 ARG USERNAME=vscode
 ARG USER_UID=1000
 ARG USER_GID=$USER_UID
 
-# Create user group, user account, and configure passwordless sudo access
-RUN groupadd --gid $USER_GID $USERNAME \
-    && useradd --uid $USER_UID --gid $USER_GID -m $USERNAME \
+RUN if getent passwd "$USER_UID" >/dev/null; then \
+        EXISTING_USER="$(getent passwd "$USER_UID" | cut -d: -f1)"; \
+        if [ "$EXISTING_USER" != "$USERNAME" ]; then \
+            usermod -l "$USERNAME" "$EXISTING_USER"; \
+        fi; \
+        EXISTING_GROUP="$(getent group "$USER_GID" | cut -d: -f1)"; \
+        if [ "$EXISTING_GROUP" != "$USERNAME" ]; then \
+            groupmod -n "$USERNAME" "$EXISTING_GROUP"; \
+        fi; \
+        usermod -d "/home/$USERNAME" -m "$USERNAME"; \
+    else \
+        groupadd --gid "$USER_GID" "$USERNAME"; \
+        useradd --uid "$USER_UID" --gid "$USER_GID" -m "$USERNAME"; \
+    fi \
     && echo $USERNAME ALL=\(root\) NOPASSWD:ALL > /etc/sudoers.d/$USERNAME \
     && chmod 0440 /etc/sudoers.d/$USERNAME
 
