@@ -5,5 +5,5 @@ grpcio-tools==1.76.0
 mypy-protobuf==4.0.0
 
 black==26.10.1
-pylint==4.0.4
+pylint==4.0.9
 tap.py
